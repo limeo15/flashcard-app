@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashLearn - Flashcard Learning App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- KaTeX for LaTeX formula rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">📚</span>
+                <h1>FlashLearn</h1>
+            </div>
+            <div class="header-controls">
+                <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+                <div class="header-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="progress-count">0</span>
+                        <span class="stat-label">Learned</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="remaining-count">0</span>
+                        <span class="stat-label">Remaining</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span class="progress-text" id="progress-text">0%</span>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- File Upload -->
+            <div class="upload-section" id="upload-section">
+                <div class="upload-card">
+                    <div class="upload-icon">📂</div>
+                    <h2>Upload CSV Files</h2>
+                    <p>Select one or more files with your flashcards</p>
+                    <label for="csv-file" class="upload-label">
+                        <input type="file" id="csv-file" accept=".csv" multiple style="display: none;">
+                        <span class="upload-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            Choose Files
+                        </span>
+                    </label>
+                    
+                    <!-- Files List -->
+                    <div class="files-list" id="files-list" style="display: none;">
+                        <div class="files-header">
+                            <span class="files-title">Selected Files</span>
+                            <button class="clear-files-btn" id="clear-files" title="Clear all">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <ul class="files-items" id="files-items"></ul>
+                        <div class="files-total">
+                            <span>Total: <strong id="total-cards-count">0</strong> cards</span>
+                        </div>
+                        <button class="btn btn-start" id="start-learning">
+                            Start Learning
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="upload-hint">
+                        <p><strong>Format:</strong> CSV file with two columns</p>
+                        <p>1st column - question, 2nd column - answer</p>
+                        <p class="hint-multi">💡 You can select multiple files to combine them</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mode Selection -->
+            <div class="mode-selection" id="mode-selection" style="display: none;">
+                <h2>Choose Learning Mode</h2>
+                <div class="mode-cards">
+                    <div class="mode-card" data-mode="learn">
+                        <div class="mode-icon">🎯</div>
+                        <h3>Learn</h3>
+                        <p>Go through cards sequentially</p>
+                    </div>
+                    <div class="mode-card" data-mode="random">
+                        <div class="mode-icon">🔀</div>
+                        <h3>Random</h3>
+                        <p>Shuffle cards randomly</p>
+                    </div>
+                    <div class="mode-card" data-mode="quiz">
+                        <div class="mode-icon">✍️</div>
+                        <h3>Quiz</h3>
+                        <p>Test your knowledge</p>
+                    </div>
+                </div>
+                <button class="btn btn-back" id="back-to-upload">
+                    ← Upload Different Files
+                </button>
+            </div>
+
+            <!-- Flashcard Container -->
+            <div class="flashcard-container" id="flashcard-container" style="display: none;">
+                <div class="card-counter">
+                    <span id="current-card">1</span> / <span id="total-cards">0</span>
+                </div>
+                
+                <div class="flashcard" id="flashcard">
+                    <div class="flashcard-inner" id="flashcard-inner">
+                        <div class="flashcard-front">
+                            <div class="card-label">Question</div>
+                            <p id="question-text"></p>
+                        </div>
+                        <div class="flashcard-back">
+                            <div class="card-label">Answer</div>
+                            <p id="answer-text"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-hint" id="flip-hint">
+                    <span>👆 Click on the card to flip</span>
+                </div>
+
+                <!-- Quiz Mode Input -->
+                <div class="quiz-input-container" id="quiz-input-container" style="display: none;">
+                    <textarea id="user-answer" placeholder="Type your answer..."></textarea>
+                    <button class="btn btn-check" id="check-answer">Check</button>
+                </div>
+
+                <!-- Confidence Buttons -->
+                <div class="confidence-buttons" id="confidence-buttons" style="display: none;">
+                    <button class="btn btn-again" data-confidence="again">
+                        <span class="btn-icon">🔄</span>
+                        Again
+                    </button>
+                    <button class="btn btn-hard" data-confidence="hard">
+                        <span class="btn-icon">😓</span>
+                        Hard
+                    </button>
+                    <button class="btn btn-good" data-confidence="good">
+                        <span class="btn-icon">👍</span>
+                        Good
+                    </button>
+                    <button class="btn btn-easy" data-confidence="easy">
+                        <span class="btn-icon">🎉</span>
+                        Easy
+                    </button>
+                </div>
+
+                <!-- Navigation -->
+                <div class="navigation">
+                    <button class="nav-btn" id="prev-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                        Previous
+                    </button>
+                    <button class="nav-btn" id="shuffle-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+                        </svg>
+                        Shuffle
+                    </button>
+                    <button class="nav-btn" id="next-btn">
+                        Next
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <button class="btn btn-back" id="back-btn">
+                    ← Back to Selection
+                </button>
+            </div>
+
+            <!-- Completion Screen -->
+            <div class="completion-screen" id="completion-screen" style="display: none;">
+                <div class="completion-content">
+                    <div class="completion-icon">🎉</div>
+                    <h2>Congratulations!</h2>
+                    <p>You've completed all the cards</p>
+                    <div class="completion-stats">
+                        <div class="completion-stat">
+                            <span class="completion-value" id="easy-count">0</span>
+                            <span class="completion-label">Easy</span>
+                        </div>
+                        <div class="completion-stat">
+                            <span class="completion-value" id="good-count">0</span>
+                            <span class="completion-label">Good</span>
+                        </div>
+                        <div class="completion-stat">
+                            <span class="completion-value" id="hard-count">0</span>
+                            <span class="completion-label">Hard</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-restart" id="restart-btn">Start Over</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Keyboard Shortcuts Info -->
+        <div class="shortcuts-info">
+            <span>⌨️ Keys: <kbd>Space</kbd> flip | <kbd>←</kbd><kbd>→</kbd> navigate | <kbd>1-4</kbd> rate</span>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
